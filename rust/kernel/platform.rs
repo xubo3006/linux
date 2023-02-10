@@ -14,7 +14,7 @@ use crate::{
     of,
     str::CStr,
     to_result,
-    types::PointerWrapper,
+    types::ForeignOwnable,
     ThisModule,
 };
 
@@ -101,7 +101,7 @@ impl<T: Driver> Adapter<T> {
             let info = Self::get_id_info(&dev);
             let data = T::probe(&mut dev, info)?;
             // SAFETY: `pdev` is guaranteed to be a valid, non-null pointer.
-            unsafe { bindings::platform_set_drvdata(pdev, data.into_pointer() as _) };
+            unsafe { bindings::platform_set_drvdata(pdev, data.into_foreign() as _) };
             Ok(0)
         }
     }
@@ -111,12 +111,12 @@ impl<T: Driver> Adapter<T> {
             // SAFETY: `pdev` is guaranteed to be a valid, non-null pointer.
             let ptr = unsafe { bindings::platform_get_drvdata(pdev) };
             // SAFETY:
-            //   - we allocated this pointer using `T::Data::into_pointer`,
+            //   - we allocated this pointer using `T::Data::into_foreign`,
             //     so it is safe to turn back into a `T::Data`.
             //   - the allocation happened in `probe`, no-one freed the memory,
             //     `remove` is the canonical kernel location to free driver data. so OK
             //     to convert the pointer back to a Rust structure here.
-            let data = unsafe { T::Data::from_pointer(ptr) };
+            let data = unsafe { T::Data::from_foreign(ptr) };
             let ret = T::remove(&data);
             <T::Data as driver::DeviceRemoval>::device_remove(&data);
             ret?;
@@ -132,9 +132,9 @@ pub trait Driver {
     /// Corresponds to the data set or retrieved via the kernel's
     /// `platform_{set,get}_drvdata()` functions.
     ///
-    /// Require that `Data` implements `PointerWrapper`. We guarantee to
+    /// Require that `Data` implements `ForeignOwnable`. We guarantee to
     /// never move the underlying wrapped data structure. This allows
-    type Data: PointerWrapper + Send + Sync + driver::DeviceRemoval = ();
+    type Data: ForeignOwnable + Send + Sync + driver::DeviceRemoval = ();
 
     /// The type holding information about each device id supported by the driver.
     type IdInfo: 'static = ();
