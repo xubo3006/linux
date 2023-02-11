@@ -15,7 +15,7 @@
 //!
 //! [`Arc`]: https://doc.rust-lang.org/std/sync/struct.Arc.html
 
-use crate::{bindings, error::code::*, Error, Opaque, Result};
+use crate::{bindings, error::code::*, types::ForeignOwnable, Error, Opaque, Result};
 use alloc::{
     alloc::{alloc, dealloc},
     vec::Vec,
@@ -96,42 +96,6 @@ impl<T> Arc<T> {
         // `Arc` object.
         Ok(unsafe { Self::from_inner(inner) })
     }
-
-    /// Deconstructs a [`Arc`] object into a `usize`.
-    ///
-    /// It can be reconstructed once via [`Arc::from_usize`].
-    pub fn into_usize(obj: Self) -> usize {
-        ManuallyDrop::new(obj).ptr.as_ptr() as _
-    }
-
-    /// Borrows a [`Arc`] instance previously deconstructed via [`Arc::into_usize`].
-    ///
-    /// # Safety
-    ///
-    /// `encoded` must have been returned by a previous call to [`Arc::into_usize`]. Additionally,
-    /// [`Arc::from_usize`] can only be called after *all* instances of [`ArcBorrow`] have been
-    /// dropped.
-    pub unsafe fn borrow_usize<'a>(encoded: usize) -> ArcBorrow<'a, T> {
-        // SAFETY: By the safety requirement of this function, we know that `encoded` came from
-        // a previous call to `Arc::into_usize`.
-        let inner = NonNull::new(encoded as *mut ArcInner<T>).unwrap();
-
-        // SAFETY: The safety requirements ensure that the object remains alive for the lifetime of
-        // the returned value. There is no way to create mutable references to the object.
-        unsafe { ArcBorrow::new(inner) }
-    }
-
-    /// Recreates a [`Arc`] instance previously deconstructed via [`Arc::into_usize`].
-    ///
-    /// # Safety
-    ///
-    /// `encoded` must have been returned by a previous call to [`Arc::into_usize`]. Additionally,
-    /// it can only be called once for each previous call to [`Arc::into_usize`].
-    pub unsafe fn from_usize(encoded: usize) -> Self {
-        // SAFETY: By the safety invariants we know that `encoded` came from `Arc::into_usize`, so
-        // the reference count held then will be owned by the new `Arc` object.
-        unsafe { Self::from_inner(NonNull::new(encoded as _).unwrap()) }
-    }
 }
 
 impl<T: ?Sized> Arc<T> {
@@ -199,6 +163,32 @@ impl<T: ?Sized> Arc<T> {
         // SAFETY: The constraint that lifetime of the shared reference must outlive that of
         // the returned `ArcBorrow` ensures that the object remains alive.
         unsafe { ArcBorrow::new(self.ptr) }
+    }
+}
+
+impl<T: 'static> ForeignOwnable for Arc<T> {
+    type Borrowed<'a> = ArcBorrow<'a, T>;
+
+    fn into_foreign(self) -> *const core::ffi::c_void {
+        ManuallyDrop::new(self).ptr.as_ptr() as _
+    }
+
+    unsafe fn borrow<'a>(ptr: *const core::ffi::c_void) -> ArcBorrow<'a, T> {
+        // SAFETY: By the safety requirement of this function, we know that `ptr` came from
+        // a previous call to `Arc::into_foreign`.
+        let inner = NonNull::new(ptr as *mut ArcInner<T>).unwrap();
+
+        // SAFETY: The safety requirements of `from_foreign` ensure that the object remains alive
+        // for the lifetime of the returned value. Additionally, the safety requirements of
+        // `ForeignOwnable::borrow_mut` ensure that no new mutable references are created.
+        unsafe { ArcBorrow::new(inner) }
+    }
+
+    unsafe fn from_foreign(ptr: *const core::ffi::c_void) -> Self {
+        // SAFETY: By the safety requirement of this function, we know that `ptr` came from
+        // a previous call to `Arc::into_foreign`, which guarantees that `ptr` is valid and
+        // holds a reference count increment that is transferrable to us.
+        unsafe { Self::from_inner(NonNull::new(ptr as _).unwrap()) }
     }
 }
 
