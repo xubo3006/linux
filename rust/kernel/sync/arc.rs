@@ -518,7 +518,7 @@ impl<T: ?Sized> Deref for ArcBorrow<'_, T> {
 ///     Ok(x.into())
 /// }
 ///
-/// # test();
+/// # test().unwrap();
 /// ```
 ///
 /// In the following example we first allocate memory for a ref-counted `Example` but we don't
@@ -539,7 +539,7 @@ impl<T: ?Sized> Deref for ArcBorrow<'_, T> {
 ///     Ok(x.write(Example { a: 10, b: 20 }).into())
 /// }
 ///
-/// # test();
+/// # test().unwrap();
 /// ```
 ///
 /// In the last example below, the caller gets a pinned instance of `Example` while converting to
@@ -561,7 +561,7 @@ impl<T: ?Sized> Deref for ArcBorrow<'_, T> {
 ///     Ok(pinned.into())
 /// }
 ///
-/// # test();
+/// # test().unwrap();
 /// ```
 pub struct UniqueArc<T: ?Sized> {
     inner: Arc<T>,
