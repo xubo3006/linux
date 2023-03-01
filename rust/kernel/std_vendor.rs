@@ -101,7 +101,6 @@
 ///
 /// The `dbg!(..)` macro moves the input:
 ///
-// TODO: Could be `compile_fail` when supported.
 /// ```ignore
 /// /// A wrapper around `usize` which importantly is not Copyable.
 /// #[derive(Debug)]
