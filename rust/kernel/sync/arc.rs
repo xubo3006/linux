@@ -142,13 +142,13 @@ impl<T: ?Sized + Unsize<U>, U: ?Sized> core::ops::DispatchFromDyn<Arc<U>> for Ar
 
 // SAFETY: It is safe to send `Arc<T>` to another thread when the underlying `T` is `Sync` because
 // it effectively means sharing `&T` (which is safe because `T` is `Sync`); additionally, it needs
-// `T` to be `Send` because any thread that has a `Arc<T>` may ultimately access `T` directly, for
+// `T` to be `Send` because any thread that has an `Arc<T>` may ultimately access `T` directly, for
 // example, when the reference count reaches zero and `T` is dropped.
 unsafe impl<T: ?Sized + Sync + Send> Send for Arc<T> {}
 
-// SAFETY: It is safe to send `&Arc<T>` to another thread when the underlying `T` is `Sync` for
-// the same reason as above. `T` needs to be `Send` as well because a thread can clone a `&Arc<T>`
-// into a `Arc<T>`, which may lead to `T` being accessed by the same reasoning as above.
+// SAFETY: It is safe to send `&Arc<T>` to another thread when the underlying `T` is `Sync` for the
+// same reason as above. `T` needs to be `Send` as well because a thread can clone an `&Arc<T>`
+// into an `Arc<T>`, which may lead to `T` being accessed by the same reasoning as above.
 unsafe impl<T: ?Sized + Sync + Send> Sync for Arc<T> {}
 
 impl<T> Arc<T> {
@@ -237,8 +237,9 @@ impl<T: ?Sized> Arc<T> {
     /// receiver), but we have a [`Arc`] instead. Getting a [`ArcBorrow`] is free when optimised.
     #[inline]
     pub fn as_arc_borrow(&self) -> ArcBorrow<'_, T> {
-        // SAFETY: The constraint that lifetime of the shared reference must outlive that of
-        // the returned `ArcBorrow` ensures that the object remains alive.
+        // SAFETY: The constraint that the lifetime of the shared reference must outlive that of
+        // the returned `ArcBorrow` ensures that the object remains alive and that no mutable
+        // reference can be created.
         unsafe { ArcBorrow::new(self.ptr) }
     }
 }
@@ -402,8 +403,8 @@ impl<T: ?Sized> ArcBorrow<'_, T> {
     /// # Safety
     ///
     /// Callers must ensure the following for the lifetime of the returned [`ArcBorrow`] instance:
-    /// 1. That `obj` remains valid;
-    /// 2. That no mutable references to `obj` are created.
+    /// 1. That `inner` remains valid;
+    /// 2. That no mutable references to `inner` are created.
     unsafe fn new(inner: NonNull<ArcInner<T>>) -> Self {
         // INVARIANT: The safety requirements guarantee the invariants.
         Self {
@@ -436,7 +437,7 @@ impl<T: ?Sized> Deref for ArcBorrow<'_, T> {
 
 /// A refcounted object that is known to have a refcount of 1.
 ///
-/// It is mutable and can be converted to a [`Arc`] so that it can be shared.
+/// It is mutable and can be converted to an [`Arc`] so that it can be shared.
 ///
 /// # Invariants
 ///
@@ -444,7 +445,7 @@ impl<T: ?Sized> Deref for ArcBorrow<'_, T> {
 ///
 /// # Examples
 ///
-/// In the following example, we make changes to the inner object before turning it into a
+/// In the following example, we make changes to the inner object before turning it into an
 /// `Arc<Test>` object (after which point, it cannot be mutated directly). Note that `x.into()`
 /// cannot fail.
 ///
