@@ -39,6 +39,83 @@ use core::{
 ///
 /// The reference count on an instance of [`Arc`] is always non-zero.
 /// The object pointed to by [`Arc`] is always pinned.
+///
+/// # Examples
+///
+/// ```
+/// use kernel::sync::Arc;
+///
+/// struct Example {
+///     a: u32,
+///     b: u32,
+/// }
+///
+/// // Create a ref-counted instance of `Example`.
+/// let obj = Arc::try_new(Example { a: 10, b: 20 })?;
+///
+/// // Get a new pointer to `obj` and increment the refcount.
+/// let cloned = obj.clone();
+///
+/// // Assert that both `obj` and `cloned` point to the same underlying object.
+/// assert!(core::ptr::eq(&*obj, &*cloned));
+///
+/// // Destroy `obj` and decrement its refcount.
+/// drop(obj);
+///
+/// // Check that the values are still accessible through `cloned`.
+/// assert_eq!(cloned.a, 10);
+/// assert_eq!(cloned.b, 20);
+///
+/// // The refcount drops to zero when `cloned` goes out of scope, and the memory is freed.
+/// ```
+///
+/// Using `Arc<T>` as the type of `self`:
+///
+/// ```
+/// use kernel::sync::Arc;
+///
+/// struct Example {
+///     a: u32,
+///     b: u32,
+/// }
+///
+/// impl Example {
+///     fn take_over(self: Arc<Self>) {
+///         // ...
+///     }
+///
+///     fn use_reference(self: &Arc<Self>) {
+///         // ...
+///     }
+/// }
+///
+/// let obj = Arc::try_new(Example { a: 10, b: 20 })?;
+/// obj.use_reference();
+/// obj.take_over();
+/// ```
+///
+/// Coercion from `Arc<Example>` to `Arc<dyn MyTrait>`:
+///
+/// ```
+/// use kernel::sync::{Arc, ArcBorrow};
+///
+/// trait MyTrait {
+///     // Trait has a function whose `self` type is `Arc<Self>`.
+///     fn example1(self: Arc<Self>) {}
+///
+///     // Trait has a function whose `self` type is `ArcBorrow<'_, Self>`.
+///     fn example2(self: ArcBorrow<'_, Self>) {}
+/// }
+///
+/// struct Example;
+/// impl MyTrait for Example {}
+///
+/// // `obj` has type `Arc<Example>`.
+/// let obj: Arc<Example> = Arc::try_new(Example)?;
+///
+/// // `coerced` has type `Arc<dyn MyTrait>`.
+/// let coerced: Arc<dyn MyTrait> = obj;
+/// ```
 pub struct Arc<T: ?Sized> {
     ptr: NonNull<ArcInner<T>>,
     _p: PhantomData<ArcInner<T>>,
