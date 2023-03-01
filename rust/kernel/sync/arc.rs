@@ -370,14 +370,6 @@ impl<T: ?Sized> From<UniqueArc<T>> for Arc<T> {
     }
 }
 
-impl<T: ?Sized> From<UniqueArc<T>> for Pin<UniqueArc<T>> {
-    fn from(obj: UniqueArc<T>) -> Self {
-        // SAFETY: It is not possible to move/replace `T` inside a `Pin<UniqueArc<T>>` (unless `T`
-        // is `Unpin`), so it is ok to convert it to `Pin<UniqueArc<T>>`.
-        unsafe { Pin::new_unchecked(obj) }
-    }
-}
-
 impl<T: ?Sized> From<Pin<UniqueArc<T>>> for Arc<T> {
     fn from(item: Pin<UniqueArc<T>>) -> Self {
         // SAFETY: The type invariants of `Arc` guarantee that the data is pinned.
@@ -548,6 +540,14 @@ impl<T> UniqueArc<MaybeUninit<T>> {
             // dropped). The types are compatible because `MaybeUninit<T>` is compatible with `T`.
             inner: unsafe { Arc::from_inner(inner.cast()) },
         }
+    }
+}
+
+impl<T: ?Sized> From<UniqueArc<T>> for Pin<UniqueArc<T>> {
+    fn from(obj: UniqueArc<T>) -> Self {
+        // SAFETY: It is not possible to move/replace `T` inside a `Pin<UniqueArc<T>>` (unless `T`
+        // is `Unpin`), so it is ok to convert it to `Pin<UniqueArc<T>>`.
+        unsafe { Pin::new_unchecked(obj) }
     }
 }
 
