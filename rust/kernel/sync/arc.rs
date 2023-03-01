@@ -67,6 +67,8 @@ use core::{
 /// assert_eq!(cloned.b, 20);
 ///
 /// // The refcount drops to zero when `cloned` goes out of scope, and the memory is freed.
+///
+/// # Ok::<(), Error>(())
 /// ```
 ///
 /// Using `Arc<T>` as the type of `self`:
@@ -92,6 +94,8 @@ use core::{
 /// let obj = Arc::try_new(Example { a: 10, b: 20 })?;
 /// obj.use_reference();
 /// obj.take_over();
+///
+/// # Ok::<(), Error>(())
 /// ```
 ///
 /// Coercion from `Arc<Example>` to `Arc<dyn MyTrait>`:
@@ -115,6 +119,8 @@ use core::{
 ///
 /// // `coerced` has type `Arc<dyn MyTrait>`.
 /// let coerced: Arc<dyn MyTrait> = obj;
+///
+/// # Ok::<(), Error>(())
 /// ```
 pub struct Arc<T: ?Sized> {
     ptr: NonNull<ArcInner<T>>,
@@ -394,7 +400,7 @@ impl<T: ?Sized> From<Pin<UniqueArc<T>>> for Arc<T> {
 /// # Example
 ///
 /// ```
-/// use crate::sync::{Arc, ArcBorrow};
+/// use kernel::sync::{Arc, ArcBorrow};
 ///
 /// struct Example;
 ///
@@ -407,12 +413,14 @@ impl<T: ?Sized> From<Pin<UniqueArc<T>>> for Arc<T> {
 ///
 /// // Assert that both `obj` and `cloned` point to the same underlying object.
 /// assert!(core::ptr::eq(&*obj, &*cloned));
+///
+/// # Ok::<(), Error>(())
 /// ```
 ///
 /// Using `ArcBorrow<T>` as the type of `self`:
 ///
 /// ```
-/// use crate::sync::{Arc, ArcBorrow};
+/// use kernel::sync::{Arc, ArcBorrow};
 ///
 /// struct Example {
 ///     a: u32,
@@ -427,6 +435,8 @@ impl<T: ?Sized> From<Pin<UniqueArc<T>>> for Arc<T> {
 ///
 /// let obj = Arc::try_new(Example { a: 10, b: 20 })?;
 /// obj.as_arc_borrow().use_reference();
+///
+/// # Ok::<(), Error>(())
 /// ```
 pub struct ArcBorrow<'a, T: ?Sized + 'a> {
     inner: NonNull<ArcInner<T>>,
