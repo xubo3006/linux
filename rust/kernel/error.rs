@@ -257,6 +257,12 @@ impl fmt::Debug for Error {
     }
 }
 
+impl From<AllocError> for Error {
+    fn from(_: AllocError) -> Error {
+        code::ENOMEM
+    }
+}
+
 impl From<TryFromIntError> for Error {
     fn from(_: TryFromIntError) -> Error {
         code::EINVAL
@@ -314,12 +320,6 @@ impl From<core::convert::Infallible> for Error {
 /// it should still be modeled as returning a `Result` rather than
 /// just an [`Error`].
 pub type Result<T = ()> = core::result::Result<T, Error>;
-
-impl From<AllocError> for Error {
-    fn from(_: AllocError) -> Error {
-        code::ENOMEM
-    }
-}
 
 // # Invariant: `-bindings::MAX_ERRNO` fits in an `i16`.
 crate::static_assert!(bindings::MAX_ERRNO <= -(i16::MIN as i32) as u32);
