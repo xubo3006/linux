@@ -126,18 +126,6 @@ impl CStr {
         Ok(unsafe { Self::from_bytes_with_nul_unchecked(bytes) })
     }
 
-    /// Creates a [`CStr`] from a `[u8]`, panic if input is not valid.
-    ///
-    /// This function is only meant to be used by `c_str!` macro, so
-    /// crates using `c_str!` macro don't have to enable `const_panic` feature.
-    #[doc(hidden)]
-    pub const fn from_bytes_with_nul_unwrap(bytes: &[u8]) -> &Self {
-        match Self::from_bytes_with_nul(bytes) {
-            Ok(v) => v,
-            Err(_) => panic!("string contains interior NUL"),
-        }
-    }
-
     /// Creates a [`CStr`] from a `[u8]` without performing any additional
     /// checks.
     ///
@@ -346,7 +334,10 @@ where
 macro_rules! c_str {
     ($str:expr) => {{
         const S: &str = concat!($str, "\0");
-        const C: &$crate::str::CStr = $crate::str::CStr::from_bytes_with_nul_unwrap(S.as_bytes());
+        const C: &$crate::str::CStr = match $crate::str::CStr::from_bytes_with_nul(S.as_bytes()) {
+            Ok(v) => v,
+            Err(_) => panic!("string contains interior NUL"),
+        };
         C
     }};
 }
