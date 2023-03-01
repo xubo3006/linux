@@ -378,12 +378,59 @@ impl<T: ?Sized> From<Pin<UniqueArc<T>>> for Arc<T> {
     }
 }
 
-/// A borrowed [`Arc`] with manually-managed lifetime.
+/// A borrowed reference to an [`Arc`] instance.
+///
+/// For cases when one doesn't ever need to increment the refcount on the allocation, it is simpler
+/// to use just `&T`, which we can trivially get from an `Arc<T>` instance.
+///
+/// However, when one may need to increment the refcount, it is preferable to use an `ArcBorrow<T>`
+/// over `&Arc<T>` because the latter results in a double-indirection: a pointer (shared reference)
+/// to a pointer (`Arc<T>`) to the object (`T`). An [`ArcBorrow`] eliminates this double
+/// indirection while still allowing one to increment the refcount and getting an `Arc<T>` when/if
+/// needed.
 ///
 /// # Invariants
 ///
-/// There are no mutable references to the underlying [`Arc`], and it remains valid for the lifetime
-/// of the [`ArcBorrow`] instance.
+/// There are no mutable references to the underlying [`Arc`], and it remains valid for the
+/// lifetime of the [`ArcBorrow`] instance.
+///
+/// # Example
+///
+/// ```
+/// use crate::sync::{Arc, ArcBorrow};
+///
+/// struct Example;
+///
+/// fn do_something(e: ArcBorrow<'_, Example>) -> Arc<Example> {
+///     e.into()
+/// }
+///
+/// let obj = Arc::try_new(Example)?;
+/// let cloned = do_something(obj.as_arc_borrow());
+///
+/// // Assert that both `obj` and `cloned` point to the same underlying object.
+/// assert!(core::ptr::eq(&*obj, &*cloned));
+/// ```
+///
+/// Using `ArcBorrow<T>` as the type of `self`:
+///
+/// ```
+/// use crate::sync::{Arc, ArcBorrow};
+///
+/// struct Example {
+///     a: u32,
+///     b: u32,
+/// }
+///
+/// impl Example {
+///     fn use_reference(self: ArcBorrow<'_, Self>) {
+///         // ...
+///     }
+/// }
+///
+/// let obj = Arc::try_new(Example { a: 10, b: 20 })?;
+/// obj.as_arc_borrow().use_reference();
+/// ```
 pub struct ArcBorrow<'a, T: ?Sized + 'a> {
     inner: NonNull<ArcInner<T>>,
     _p: PhantomData<&'a ()>,
