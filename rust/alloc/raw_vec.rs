@@ -23,8 +23,8 @@ mod tests;
 enum AllocInit {
     /// The contents of the new memory are uninitialized.
     Uninitialized,
-    #[allow(dead_code)]
     /// The new memory is guaranteed to be zeroed.
+    #[allow(dead_code)]
     Zeroed,
 }
 

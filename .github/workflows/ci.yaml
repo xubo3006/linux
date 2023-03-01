@@ -267,7 +267,7 @@ jobs:
 
       # Check
       - run: |
-          grep '] ok 1 - rust_kernel_doctests$' qemu-stdout.log
+          grep '] ok 1 rust_kernel_doctests$' qemu-stdout.log
 
       - run: |
           grep '] rust_minimal: Rust minimal sample (init)$'     qemu-stdout.log
