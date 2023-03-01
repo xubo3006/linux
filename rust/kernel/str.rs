@@ -6,7 +6,10 @@ use alloc::vec::Vec;
 use core::fmt::{self, Write};
 use core::ops::{self, Deref, Index};
 
-use crate::{bindings, error::code::*, Error};
+use crate::{
+    bindings,
+    error::{code::*, Error},
+};
 
 /// Byte string without UTF-8 validity guarantee.
 ///
