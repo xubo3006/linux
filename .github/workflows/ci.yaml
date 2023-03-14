@@ -95,13 +95,13 @@ jobs:
 
     steps:
       # Setup: checkout
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # Setup: Store matrix name
       - run: echo 'MATRIX_NAME=${{ matrix.arch }}-${{ matrix.toolchain }}-${{ matrix.config }}' >> $GITHUB_ENV
 
       # Setup: Github cache
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: /root/.ccache
           key: ${{ env.MATRIX_NAME }}-ccache-${{ github.run_id }}
