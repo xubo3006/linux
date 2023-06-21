@@ -993,12 +993,6 @@ impl IntoStringError {
     pub fn utf8_error(&self) -> Utf8Error {
         self.error
     }
-
-    #[doc(hidden)]
-    #[unstable(feature = "cstr_internals", issue = "none")]
-    pub fn __source(&self) -> &Utf8Error {
-        &self.error
-    }
 }
 
 impl IntoStringError {
@@ -1143,6 +1137,6 @@ impl core::error::Error for IntoStringError {
     }
 
     fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
-        Some(self.__source())
+        Some(&self.error)
     }
 }
