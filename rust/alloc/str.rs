@@ -18,7 +18,6 @@ use core::unicode::conversions;
 
 use crate::borrow::ToOwned;
 use crate::boxed::Box;
-use crate::collections::TryReserveError;
 use crate::slice::{Concat, Join, SliceIndex};
 use crate::string::String;
 use crate::vec::Vec;
@@ -259,7 +258,7 @@ impl str {
     /// assert_eq!("than an old", s.replace("is", "an"));
     /// ```
     ///
-    /// When the pattern doesn't match:
+    /// When the pattern doesn't match, it returns this string slice as [`String`]:
     ///
     /// ```
     /// let s = "this is old";
@@ -300,7 +299,7 @@ impl str {
     /// assert_eq!("foo foo new23 foo", s.replacen(char::is_numeric, "new", 1));
     /// ```
     ///
-    /// When the pattern doesn't match:
+    /// When the pattern doesn't match, it returns this string slice as [`String`]:
     ///
     /// ```
     /// let s = "this is old";
@@ -562,10 +561,9 @@ impl str {
     #[stable(feature = "ascii_methods_on_intrinsics", since = "1.23.0")]
     #[inline]
     pub fn to_ascii_uppercase(&self) -> String {
-        let mut bytes = self.as_bytes().to_vec();
-        bytes.make_ascii_uppercase();
-        // make_ascii_uppercase() preserves the UTF-8 invariant.
-        unsafe { String::from_utf8_unchecked(bytes) }
+        let mut s = self.to_owned();
+        s.make_ascii_uppercase();
+        s
     }
 
     /// Returns a copy of this string where each character is mapped to its
@@ -595,27 +593,9 @@ impl str {
     #[stable(feature = "ascii_methods_on_intrinsics", since = "1.23.0")]
     #[inline]
     pub fn to_ascii_lowercase(&self) -> String {
-        let mut bytes = self.as_bytes().to_vec();
-        bytes.make_ascii_lowercase();
-        // make_ascii_lowercase() preserves the UTF-8 invariant.
-        unsafe { String::from_utf8_unchecked(bytes) }
-    }
-
-    /// Tries to create a `String`.
-    ///
-    /// # Examples
-    ///
-    /// Basic usage:
-    ///
-    /// ```
-    /// let s: &str = "a";
-    /// let ss: String = s.try_to_owned().unwrap();
-    /// ```
-    #[rustc_allow_incoherent_impl]
-    #[inline]
-    #[stable(feature = "kernel", since = "1.0.0")]
-    pub fn try_to_owned(&self) -> Result<String, TryReserveError> {
-        unsafe { Ok(String::from_utf8_unchecked(self.as_bytes().try_to_vec()?)) }
+        let mut s = self.to_owned();
+        s.make_ascii_lowercase();
+        s
     }
 }
 
