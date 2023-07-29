@@ -396,11 +396,13 @@ rust-analyzer:
 		$(RUST_LIB_SRC) > $(objtree)/rust-project.json
 
 redirect-intrinsics = \
-	__eqsf2 __gesf2 __lesf2 __nesf2 __unordsf2 \
-	__unorddf2 \
+	__addsf3 __eqsf2 __gesf2 __lesf2 __ltsf2 __mulsf3 __nesf2 __subsf3 __unordsf2 \
+	__adddf3 __ledf2 __ltdf2 __muldf3 __unorddf2 \
 	__muloti4 __multi3 \
 	__udivmodti4 __udivti3 __umodti3 \
-	__aeabi_fcmpeq __aeabi_fcmpun __aeabi_dcmpun __aeabi_uldivmod
+	__aeabi_fadd __aeabi_fmul __aeabi_fcmpeq __aeabi_fcmple __aeabi_fcmplt __aeabi_fcmpun \
+	__aeabi_dadd __aeabi_dmul __aeabi_dcmple __aeabi_dcmplt __aeabi_dcmpun \
+	__aeabi_uldivmod
 
 ifneq ($(or $(CONFIG_ARM64),$(and $(CONFIG_RISCV),$(CONFIG_64BIT))),)
 	# These intrinsics are defined for ARM64 and RISCV64
