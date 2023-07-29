@@ -72,12 +72,20 @@ define_panicking_intrinsics!("`u128` should not be used", {
 
 #[cfg(target_arch = "arm")]
 define_panicking_intrinsics!("`f32` should not be used", {
+    __aeabi_fadd,
+    __aeabi_fmul,
     __aeabi_fcmpeq,
+    __aeabi_fcmple,
+    __aeabi_fcmplt,
     __aeabi_fcmpun,
 });
 
 #[cfg(target_arch = "arm")]
 define_panicking_intrinsics!("`f64` should not be used", {
+    __aeabi_dadd,
+    __aeabi_dmul,
+    __aeabi_dcmple,
+    __aeabi_dcmplt,
     __aeabi_dcmpun,
 });
 
