@@ -44,6 +44,7 @@ define_panicking_intrinsics!("`f32` should not be used", {
     __ltsf2,
     __mulsf3,
     __nesf2,
+    __subsf3,
     __unordsf2,
 });
 
