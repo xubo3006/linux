@@ -36,6 +36,42 @@
 #include <linux/sysctl.h>
 #include <linux/uaccess.h>
 #include <linux/uio.h>
+// // rxe_net
+#include <linux/skbuff.h>
+#include <linux/if_arp.h>
+#include <linux/netdevice.h>
+#include <linux/if.h>
+#include <linux/if_vlan.h>
+#include <net/udp_tunnel.h>
+#include <net/sch_generic.h>
+#include <rdma/ib_addr.h>
+#include <net/sock.h>
+#include <net/if_inet6.h>
+#include <linux/module.h>
+#include <linux/socket.h>
+#include <uapi/rdma/ib_user_ioctl_verbs.h>
+
+// rxe
+#include <rdma/ib_verbs.h>
+#include <rdma/ib_user_verbs.h>
+#include <rdma/ib_pack.h>
+#include <rdma/ib_smi.h>
+#include <rdma/ib_umem.h>
+#include <rdma/ib_cache.h>
+#include <rdma/ib_addr.h>
+#include <crypto/hash.h>
+#include <rdma/rdma_netlink.h>
+#include <net/addrconf.h>
+
+// rxe_hdr
+#include <uapi/rdma/rdma_user_rxe.h>
+
+//rxe_pool
+#include <linux/xarray.h>
+#include <linux/kref.h>
+#include <linux/types.h>
+#include <linux/completion.h>
+#include <net/ipv6.h>
 
 /* `bindgen` gets confused at certain things. */
 const gfp_t BINDINGS_GFP_KERNEL = GFP_KERNEL;

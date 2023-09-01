@@ -103,7 +103,7 @@ impl<const N: usize> Registration<{ N }> {
     /// are going to pin the registration right away, call
     /// [`Self::new_pinned()`] instead.
     pub fn new(
-        name: &'static CStr,
+        name: &'static CStr,           
         minors_start: u16,
         this_module: &'static crate::ThisModule,
     ) -> Self {
@@ -140,7 +140,7 @@ impl<const N: usize> Registration<{ N }> {
             let mut dev: bindings::dev_t = 0;
             // SAFETY: Calling unsafe function. `this.name` has `'static`
             // lifetime.
-            let res = unsafe {
+            let res: i32 = unsafe {
                 bindings::alloc_chrdev_region(
                     &mut dev,
                     this.minors_start.into(),
