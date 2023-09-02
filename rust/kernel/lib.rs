@@ -76,6 +76,8 @@ pub mod task;
 pub mod workqueue;
 
 pub mod linked_list;
+#[cfg(CONFIG_MLX4_EN)]
+pub mod mlx4;
 mod raw_list;
 pub mod rbtree;
 pub mod unsafe_list;

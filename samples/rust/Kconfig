@@ -163,4 +163,11 @@ config SAMPLE_RUST_SELFTESTS
 
 	  If unsure, say N.
 
+config SAMPLE_RUST_MLX4
+	tristate "infiniband mlx4"
+	help
+	  This option builds the infiniband mlx4 driver cases for Rust.
+
+	  If unsure, say N.
+
 endif # SAMPLES_RUST
