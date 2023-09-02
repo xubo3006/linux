@@ -209,14 +209,14 @@ impl Queue {
     ///
     /// Callers should first consider using one of the existing ones (e.g. [`system`]) before
     /// deciding to create a new one.
-    pub fn try_new(name: fmt::Arguments<'_>) -> Result<BoxedQueue> {
+    pub fn try_new(name: fmt::Arguments<'_>, flags: u32, max_active: i32) -> Result<BoxedQueue> {
         // SAFETY: We use a format string that requires an `fmt::Arguments` pointer as the first
         // and only argument.
         let ptr = unsafe {
             bindings::alloc_workqueue(
                 c_str!("%pA").as_char_ptr(),
-                0,
-                0,
+                flags,
+                max_active,
                 &name as *const _ as *const core::ffi::c_void,
             )
         };
