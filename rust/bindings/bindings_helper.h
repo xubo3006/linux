@@ -36,7 +36,13 @@
 #include <linux/sysctl.h>
 #include <linux/uaccess.h>
 #include <linux/uio.h>
+
 #include <linux/mlx4/driver.h>
+#include <linux/mlx4/device.h>
+#include <rdma/ib_verbs.h>
+#include <rdma/ib_mad.h>
+#include <linux/rbtree_types.h>
+#include <rdma/ib_sa.h>
 
 /* `bindgen` gets confused at certain things. */
 const gfp_t BINDINGS_GFP_KERNEL = GFP_KERNEL;
