@@ -20,3 +20,8 @@
 
 # `seccomp`'s comment gets understood as a doctest
 --no-doc-comments
+
+# warp the static inline function
+--experimental
+--wrap-static-fns
+# --wrap-static-fns-path=./extern.c

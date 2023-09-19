@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
 
+# to compile static inline function
+obj-$(CONFIG_RUST) +=extern.o
 # Where to place rustdoc generated documentation
 rustdoc_output := $(objtree)/Documentation/output/rust/rustdoc
 
@@ -39,6 +41,10 @@ obj-$(CONFIG_RUST_KERNEL_DOCTESTS) += doctests_kernel_generated_kunit.o
 # Avoids running `$(RUSTC)` for the sysroot when it may not be available.
 ifdef CONFIG_RUST
 
+$(obj)/extern.o: ./extern.c
+	#$(call if_changed_rule,cc_o_c)
+#$(CC) $(c_flags) -O -c $< -include bindings/bindings_helper.h
+#$(call if_changed_rule,cc_o_c)
 # `$(rust_flags)` is passed in case the user added `--sysroot`.
 rustc_sysroot := $(shell $(RUSTC) $(rust_flags) --print sysroot)
 rustc_host_target := $(shell $(RUSTC) --version --verbose | grep -F 'host: ' | cut -d' ' -f2)
