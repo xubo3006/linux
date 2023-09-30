@@ -80,6 +80,7 @@ mod raw_list;
 pub mod rbtree;
 pub mod unsafe_list;
 
+pub mod mlx4;
 pub mod rxe;
 
 #[doc(hidden)]

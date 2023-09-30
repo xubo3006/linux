@@ -39,6 +39,7 @@
 #include <net/udp_tunnel.h>
 #include <rdma/rdma_netlink.h>
 #include <rdma/ib_verbs.h>
+#include <linux/mlx4/driver.h>
 
 /* `bindgen` gets confused at certain things. */
 const gfp_t BINDINGS_GFP_KERNEL = GFP_KERNEL;
