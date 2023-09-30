@@ -80,6 +80,8 @@ mod raw_list;
 pub mod rbtree;
 pub mod unsafe_list;
 
+pub mod rxe;
+
 #[doc(hidden)]
 pub mod module_param;
 
